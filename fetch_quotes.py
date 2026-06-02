@@ -102,17 +102,16 @@ def main():
     
     print(f"\n📁 寫入: {dated_file.name}, latest.json")
     
-    # Git push
-    print(f"\n🚀 推到 GitHub...")
-    try:
-        os.chdir(script_dir)
-        subprocess.run(["git", "add", "."], check=True)
-        subprocess.run(["git", "commit", "-m", f"Update {today}"], check=True)
-        subprocess.run(["git", "push"], check=True)
-        print("✅ 推送成功!")
-    except subprocess.CalledProcessError as e:
-        print(f"⚠️  Git 操作有問題: {e}")
-        print("   (可能是沒變化或網路問題,看上面訊息)")
-
-if __name__ == "__main__":
-    main()
+    # Git push (只在本機跑,GitHub Actions 會自己處理)
+    if os.environ.get("GITHUB_ACTIONS") != "true":
+        print(f"\n推到 GitHub...")
+        try:
+            os.chdir(script_dir)
+            subprocess.run(["git", "add", "."], check=True)
+            subprocess.run(["git", "commit", "-m", f"Update {today} {now_str}"], check=True)
+            subprocess.run(["git", "push"], check=True)
+            print("推送成功!")
+        except subprocess.CalledProcessError as e:
+            print(f"Git 有問題: {e}")
+    else:
+        print("\n(GitHub Actions 環境,跳過本機 git)")
